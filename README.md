@@ -9,3 +9,5 @@ Saves the history of each tile and lets you display it later.
 Simply copy both files ``HistoryPlugin.jar`` and ``history-config.json`` into your ``<server-folder>/config/mods`` directory
 
 In ``history-config.json`` you can change whether or not only admins can lookup a tiles history and how many history entries each tile should save at max.
+
+Type ``/history`` ingame to toggle the history mode, when enabled click on any tile to display its history entries.
