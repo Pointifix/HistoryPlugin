@@ -1,0 +1,7 @@
+{
+  "name": "HistoryPlugin",
+  "author": "Pointifix",
+  "main": "history.HistoryPlugin",
+  "description": "Adds a history command to display a tiles build/break history",
+  "version": 1.0
+}
