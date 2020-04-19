@@ -42,9 +42,9 @@ public class HistoryPlugin extends Plugin {
 
                 for (HistoryEntry historyEntry : tileHistory) {
                     if (historyEntry.breaking) {
-                        message += "[red]- [white]" + historyEntry.player.name + " (" + historyEntry.player.uuid + ") broke this tile\n";
+                        message += "[red]- [white]" + historyEntry.player.name + " (ID: " + historyEntry.player.id + ") broke this tile\n";
                     } else {
-                        message += "[green]+ [white]" + historyEntry.player.name + " (" + historyEntry.player.uuid + ") placed [purple]" + historyEntry.block + "[white]\n";
+                        message += "[green]+ [white]" + historyEntry.player.name + " (ID: " + historyEntry.player.id + ") placed [purple]" + historyEntry.block + "[white]\n";
                     }
                 }
                 if (tileHistory.isEmpty()) message += "[blue]* [white]no entries\n";
