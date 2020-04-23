@@ -46,16 +46,24 @@ public class HistoryPlugin extends Plugin {
             if (activeHistoryPlayers.contains(tapEvent.player)) {
                 LimitedQueue<HistoryEntry> tileHistory = worldHistory[tapEvent.tile.x][tapEvent.tile.y];
 
-                String message = "[yellow]History of Block (" + tapEvent.tile.x + "," + tapEvent.tile.y + ")\n";
+                String message = "[yellow]History of Block (" + tapEvent.tile.x + "," + tapEvent.tile.y + ")";
 
                 for (HistoryEntry historyEntry : tileHistory) {
                     if (historyEntry.breaking) {
-                        message += "[red]- [white]" + historyEntry.player.name + " (ID: " + historyEntry.player.id + ") broke this tile\n";
+                        if(tapEvent.player.isAdmin){
+                            message += "\n[red]- [white]" + historyEntry.player.name + "[white] (UUID: [scarlet]" + historyEntry.player.uuid + "[white]) broke this tile";
+                        }else{
+                            message += "\n[red]- [white]" + historyEntry.player.name + "[white] (ID: [scarlet]" + historyEntry.player.id + "[white]) broke this tile";
+                        }
                     } else {
-                        message += "[green]+ [white]" + historyEntry.player.name + " (ID: " + historyEntry.player.id + ") placed [purple]" + historyEntry.block + "[white]\n";
+                        if(tapEvent.player.isAdmin) {
+                            message += "\n[green]+ [white]" + historyEntry.player.name + "[white] (UUID: [scarlet]" + historyEntry.player.uuid + "[white]) placed [purple]" + historyEntry.block + "[white]";
+                        }else{
+                            message += "\n[green]+ [white]" + historyEntry.player.name + "[white] (ID: [scarlet]" + historyEntry.player.id + "[white]) placed [purple]" + historyEntry.block + "[white]";
+                        }
                     }
                 }
-                if (tileHistory.isEmpty()) message += "[blue]* [white]no entries\n";
+                if (tileHistory.isEmpty()) message += "\n[royal]* [white]no entries";
 
                 tapEvent.player.sendMessage(message);
             }
