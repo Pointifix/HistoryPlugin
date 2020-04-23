@@ -1,11 +1,15 @@
 package history;
 
 import arc.*;
+import arc.struct.Array;
 import arc.util.*;
 import mindustry.*;
 import mindustry.entities.type.*;
 import mindustry.game.EventType.*;
+import mindustry.gen.Call;
 import mindustry.plugin.Plugin;
+import mindustry.world.Tile;
+
 import java.util.ArrayList;
 
 public class HistoryPlugin extends Plugin {
@@ -31,7 +35,11 @@ public class HistoryPlugin extends Plugin {
 
         Events.on(BlockBuildEndEvent.class, blockBuildEndEvent -> {
             HistoryEntry historyEntry = new HistoryEntry(blockBuildEndEvent.player, blockBuildEndEvent.tile.block(), blockBuildEndEvent.breaking);
-            worldHistory[blockBuildEndEvent.tile.x][blockBuildEndEvent.tile.y].add(historyEntry);
+
+            Array<Tile> linkedTile = blockBuildEndEvent.tile.getLinkedTiles(new Array<>());
+            for (Tile tile : linkedTile) {
+                worldHistory[tile.x][tile.y].add(historyEntry);
+            }
         });
 
         Events.on(TapEvent.class, tapEvent -> {
