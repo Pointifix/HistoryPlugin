@@ -1,8 +1,9 @@
 # History Plugin
 
-Saves the history of each tile and lets you display it later.
+Saves the history of each tile and lets you display it later. Shows build and break history as well as the configuration history.
 
 ![](images/plugin-preview.PNG)
+![](images/plugin-preview_2.PNG)
 
 ## How to use
 
