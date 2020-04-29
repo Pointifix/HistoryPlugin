@@ -3,10 +3,12 @@ package history;
 import arc.*;
 import arc.struct.Array;
 import arc.util.*;
+import history.entry.BlockEntry;
+import history.entry.ConfigEntry;
+import history.entry.HistoryEntry;
 import mindustry.*;
 import mindustry.entities.type.*;
 import mindustry.game.EventType.*;
-import mindustry.gen.Call;
 import mindustry.plugin.Plugin;
 import mindustry.world.Tile;
 
@@ -34,9 +36,29 @@ public class HistoryPlugin extends Plugin {
         });
 
         Events.on(BlockBuildEndEvent.class, blockBuildEndEvent -> {
-            HistoryEntry historyEntry = new HistoryEntry(blockBuildEndEvent.player, blockBuildEndEvent.tile.block(), blockBuildEndEvent.breaking);
+            HistoryEntry historyEntry = new BlockEntry(blockBuildEndEvent);
 
             Array<Tile> linkedTile = blockBuildEndEvent.tile.getLinkedTiles(new Array<>());
+            for (Tile tile : linkedTile) {
+                worldHistory[tile.x][tile.y].add(historyEntry);
+            }
+        });
+
+        Events.on(TapConfigEvent.class, tapConfigEvent -> {
+            if (tapConfigEvent.player == null) return;
+
+            LimitedQueue<HistoryEntry> tileHistory = worldHistory[tapConfigEvent.tile.x][tapConfigEvent.tile.y];
+            boolean connect = true;
+
+            if (tileHistory.getLast() instanceof ConfigEntry) {
+                ConfigEntry lastConfigEntry = ((ConfigEntry) tileHistory.getLast());
+
+                connect = !(lastConfigEntry.value == tapConfigEvent.value && lastConfigEntry.connect);
+            }
+
+            HistoryEntry historyEntry = new ConfigEntry(tapConfigEvent, connect);
+
+            Array<Tile> linkedTile = tapConfigEvent.tile.getLinkedTiles(new Array<>());
             for (Tile tile : linkedTile) {
                 worldHistory[tile.x][tile.y].add(historyEntry);
             }
@@ -48,20 +70,9 @@ public class HistoryPlugin extends Plugin {
 
                 String message = "[yellow]History of Block (" + tapEvent.tile.x + "," + tapEvent.tile.y + ")";
 
+                if (tileHistory.isOverflown()) message += "\n[white]... too many entries";
                 for (HistoryEntry historyEntry : tileHistory) {
-                    if (historyEntry.breaking) {
-                        if(tapEvent.player.isAdmin){
-                            message += "\n[red]- [white]" + historyEntry.player.name + "[white] (UUID: [scarlet]" + historyEntry.player.uuid + "[white]) broke this tile";
-                        }else{
-                            message += "\n[red]- [white]" + historyEntry.player.name + "[white] (ID: [scarlet]" + historyEntry.player.id + "[white]) broke this tile";
-                        }
-                    } else {
-                        if(tapEvent.player.isAdmin) {
-                            message += "\n[green]+ [white]" + historyEntry.player.name + "[white] (UUID: [scarlet]" + historyEntry.player.uuid + "[white]) placed [purple]" + historyEntry.block + "[white]";
-                        }else{
-                            message += "\n[green]+ [white]" + historyEntry.player.name + "[white] (ID: [scarlet]" + historyEntry.player.id + "[white]) placed [purple]" + historyEntry.block + "[white]";
-                        }
-                    }
+                    message += "\n" + historyEntry.getMessage(tapEvent.player.isAdmin);
                 }
                 if (tileHistory.isEmpty()) message += "\n[royal]* [white]no entries";
 

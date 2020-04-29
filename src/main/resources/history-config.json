@@ -1,3 +1,4 @@
 {
-  "historyLimit": 8
+  "historyLimit": 16,
+  "adminsOnly": false
 }
