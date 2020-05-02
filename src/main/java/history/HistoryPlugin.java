@@ -50,7 +50,7 @@ public class HistoryPlugin extends Plugin {
             LimitedQueue<HistoryEntry> tileHistory = worldHistory[tapConfigEvent.tile.x][tapConfigEvent.tile.y];
             boolean connect = true;
 
-            if (tileHistory.getLast() instanceof ConfigEntry) {
+            if (!tileHistory.isEmpty() && tileHistory.getLast() instanceof ConfigEntry) {
                 ConfigEntry lastConfigEntry = ((ConfigEntry) tileHistory.getLast());
 
                 connect = !(lastConfigEntry.value == tapConfigEvent.value && lastConfigEntry.connect);
