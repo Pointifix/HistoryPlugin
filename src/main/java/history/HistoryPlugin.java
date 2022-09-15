@@ -1,15 +1,19 @@
 package history;
 
-import arc.*;
-import arc.struct.Array;
-import arc.util.*;
+import arc.Events;
+import arc.struct.Seq;
+import arc.util.CommandHandler;
+import arc.util.Log;
 import history.entry.BlockEntry;
 import history.entry.ConfigEntry;
 import history.entry.HistoryEntry;
-import mindustry.*;
-import mindustry.entities.type.*;
-import mindustry.game.EventType.*;
-import mindustry.plugin.Plugin;
+import mindustry.Vars;
+import mindustry.game.EventType.BlockBuildEndEvent;
+import mindustry.game.EventType.ConfigEvent;
+import mindustry.game.EventType.TapEvent;
+import mindustry.game.EventType.WorldLoadEvent;
+import mindustry.gen.Player;
+import mindustry.mod.Plugin;
 import mindustry.world.Tile;
 
 import java.util.ArrayList;
@@ -38,27 +42,27 @@ public class HistoryPlugin extends Plugin {
         Events.on(BlockBuildEndEvent.class, blockBuildEndEvent -> {
             HistoryEntry historyEntry = new BlockEntry(blockBuildEndEvent);
 
-            Array<Tile> linkedTile = blockBuildEndEvent.tile.getLinkedTiles(new Array<>());
+            Seq<Tile> linkedTile = blockBuildEndEvent.tile.getLinkedTiles(new Seq<>());
             for (Tile tile : linkedTile) {
                 worldHistory[tile.x][tile.y].add(historyEntry);
             }
         });
 
-        Events.on(TapConfigEvent.class, tapConfigEvent -> {
-            if (tapConfigEvent.player == null) return;
+        Events.on(ConfigEvent.class, configEvent -> {
+            if (configEvent.player == null) return;
 
-            LimitedQueue<HistoryEntry> tileHistory = worldHistory[tapConfigEvent.tile.x][tapConfigEvent.tile.y];
+            LimitedQueue<HistoryEntry> tileHistory = worldHistory[configEvent.tile.tileX()][configEvent.tile.tileY()];
             boolean connect = true;
 
             if (!tileHistory.isEmpty() && tileHistory.getLast() instanceof ConfigEntry) {
                 ConfigEntry lastConfigEntry = ((ConfigEntry) tileHistory.getLast());
 
-                connect = !(lastConfigEntry.value == tapConfigEvent.value && lastConfigEntry.connect);
+                connect = lastConfigEntry.value != null && !lastConfigEntry.value.equals(configEvent.value) && lastConfigEntry.connect;
             }
 
-            HistoryEntry historyEntry = new ConfigEntry(tapConfigEvent, connect);
+            HistoryEntry historyEntry = new ConfigEntry(configEvent, connect);
 
-            Array<Tile> linkedTile = tapConfigEvent.tile.getLinkedTiles(new Array<>());
+            Seq<Tile> linkedTile = configEvent.tile.tile().getLinkedTiles(new Seq<>());
             for (Tile tile : linkedTile) {
                 worldHistory[tile.x][tile.y].add(historyEntry);
             }
@@ -72,7 +76,7 @@ public class HistoryPlugin extends Plugin {
 
                 if (tileHistory.isOverflown()) message += "\n[white]... too many entries";
                 for (HistoryEntry historyEntry : tileHistory) {
-                    message += "\n" + historyEntry.getMessage(tapEvent.player.isAdmin);
+                    message += "\n" + historyEntry.getMessage(tapEvent.player.admin());
                 }
                 if (tileHistory.isEmpty()) message += "\n[royal]* [white]no entries";
 
@@ -86,7 +90,7 @@ public class HistoryPlugin extends Plugin {
     @Override
     public void registerClientCommands(CommandHandler handler) {
         handler.<Player>register("history", "Toggle history display when clicking on a tile", (args, player) -> {
-            if (!adminsOnly || player.isAdmin) {
+            if (!adminsOnly || player.admin()) {
                 if (activeHistoryPlayers.contains(player)) {
                     activeHistoryPlayers.remove(player);
                     player.sendMessage("[red]Disabled [yellow]history mode.");

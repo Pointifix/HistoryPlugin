@@ -2,7 +2,7 @@ apply plugin: "java"
 
 version '1.0'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.9
 
 repositories{
     mavenCentral()
@@ -11,7 +11,7 @@ repositories{
 
 ext{
     //the build number that this plugin is made for
-    mindustryVersion = 'v104'
+    mindustryVersion = 'v126.2'
 }
 
 dependencies{
@@ -21,8 +21,9 @@ dependencies{
 }
 
 jar{
-    version = null
     from{
         configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
     }
+
+    destinationDirectory.set(file("$buildDir/../mindustry-server/config/mods"))
 }
